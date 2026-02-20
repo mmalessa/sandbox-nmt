@@ -1,0 +1,56 @@
+services:
+    libretranslate:
+        image: libretranslate/libretranslate:latest
+        container_name: libretranslate
+        restart: unless-stopped
+        ports:
+            - "5000:5000"
+        environment:
+            LT_LOAD_ONLY: en,pl,cs,de,es,fr,hu,nl,ro,sk,sv,ru,uk,it # ogranicz języki → szybszy start i mniejsze zużycie RAM
+            LT_UPDATE_MODELS: "true"        # katalog modeli
+            LT_REQ_LIMIT: "0"               # limit zapytań (0 = brak limitu)
+            LT_MAX_TEXT_LENGTH: "5000"      # maksymalny rozmiar tekstu
+            LT_THREADS: "4"                 # wątki serwera WSGI (domyślnie 4)
+        volumes:
+            - libretranslate_models:/home/libretranslate/.local
+        networks:
+            devapp:
+        deploy:
+            resources:
+                limits:
+                    memory: 2g
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "http://localhost:5000/languages" ]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+
+    php:
+        build:
+            context: .
+            target: dev
+            args:
+                APP_USER_ID: 1000
+                APP_USER_NAME: appuser
+        restart: on-failure
+        ports:
+            - "8080:8080"
+        volumes:
+            - .docker/php/php.ini:/usr/local/etc/php/conf.d/app-overrides.ini
+            - ./:/app/
+            - home_appuser:/home/appuser/
+        environment:
+            PHP_IDE_CONFIG: "serverName=dev"
+        working_dir: /app
+        tty: true
+        networks:
+            devapp:
+        extra_hosts:
+            - host.docker.internal:host-gateway
+
+volumes:
+    libretranslate_models:
+    home_appuser:
+
+networks:
+    devapp:
