@@ -25,6 +25,32 @@ services:
             timeout: 10s
             retries: 3
 
+    nllb-translator:
+        image: python:3.11-slim
+        container_name: nllb-translator
+        restart: unless-stopped
+        ports:
+            - "8081:8000"
+        working_dir: /app
+        volumes:
+            - nllb_models:/models
+            - ./nllb:/app
+        networks:
+            devapp:
+        environment:
+            MODEL_NAME: facebook/nllb-200-distilled-600M
+            HF_HOME: /models
+            TRANSFORMERS_CACHE: /models
+        command: >
+            bash -c "
+            pip install --no-cache-dir fastapi uvicorn transformers sentencepiece torch &&
+            uvicorn server:app --host 0.0.0.0 --port 8000
+            "
+        deploy:
+            resources:
+                limits:
+                    memory: 3g
+
     php:
         build:
             context: .
@@ -50,6 +76,7 @@ services:
 
 volumes:
     libretranslate_models:
+    nllb_models:
     home_appuser:
 
 networks:

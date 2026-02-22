@@ -1,0 +1,12 @@
+### Docs
+GET http://localhost:8081/docs
+
+### English → Croatian
+POST http://localhost:8081/translate
+Content-Type: application/json
+
+{
+  "text": "Refrigerator",
+  "source": "eng_Latn",
+  "target": "hrv_Latn"
+}
