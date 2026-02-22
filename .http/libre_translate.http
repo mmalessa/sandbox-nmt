@@ -1,0 +1,16 @@
+# https://docs.libretranslate.com/
+
+### LT Supported Languages
+GET http://localhost:5000/languages
+
+
+### LT Translate
+POST http://localhost:5000/translate
+Content-Type: application/json
+
+{
+  "q": "chłodziarka",
+  "source": "pl",
+  "target": "en",
+  "alternatives": 2
+}
