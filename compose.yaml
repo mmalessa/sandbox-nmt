@@ -27,18 +27,38 @@ services:
 
     nllb-translator:
         build:
-            context: ./nllb
+            context: .docker/nllb
         container_name: nllb-translator
         restart: unless-stopped
         ports:
             - "8081:8000"
         volumes:
             - nllb_models:/models
-#            - ./nllb:/app
         networks:
             devapp:
         environment:
             MODEL_NAME: facebook/nllb-200-distilled-600M
+            HF_HOME: /models
+            TRANSFORMERS_CACHE: /models
+        deploy:
+            resources:
+                limits:
+                    memory: 3g
+
+    m2m-translator:
+        build:
+            context: .docker/m2m
+        container_name: m2m-translator
+        restart: unless-stopped
+        ports:
+            - "8082:8000"
+        volumes:
+            - m2m_models:/models
+        networks:
+            devapp:
+        environment:
+            MODEL_NAME: facebook/m2m100_418M
+#            MODEL_NAME: facebook/m2m100_1.2B
             HF_HOME: /models
             TRANSFORMERS_CACHE: /models
         deploy:
@@ -72,6 +92,7 @@ services:
 volumes:
     libretranslate_models:
     nllb_models:
+    m2m_models:
     home_appuser:
 
 networks:

@@ -1,0 +1,9 @@
+### M2m translate
+POST http://localhost:8082/translate
+Content-Type: application/json
+
+{
+  "text": "refrigerator",
+  "source": "en",
+  "target": "hr"
+}
