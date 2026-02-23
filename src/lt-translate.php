@@ -6,22 +6,24 @@ namespace App;
 
 use MalvikLab\LibreTranslateClient\Client;
 use MalvikLab\LibreTranslateClient\DTO\TranslateRequestDTO;
-use OpenAI\Factory;
 
 require __DIR__.'/../vendor/autoload.php';
+require __DIR__.'/languages.php';
+require __DIR__.'/phrase.php';
+
 error_reporting(E_ALL ^ E_DEPRECATED);
 
 
-$phrase = "snopowiązałka";
+$targetLanguages = array_keys(LANGUAGES);
+
 
 $libreTranslateClient = new Client('http://libretranslate:5000');
 
-// TODO: get target from: http://localhost:5000/languages
 $translations = multitranslate(
     $libreTranslateClient,
     $phrase,
     'pl',
-    ['en' ,'pl' ,'cs' ,'de' ,'es', 'fr' ,'hu' ,'nl' ,'ro' ,'sk' ,'sv' ,'ru' ,'uk' ,'it']
+    $targetLanguages
 );
 
 echo json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
@@ -37,8 +39,12 @@ function multitranslate(Client $client, string $phrase, string $source, array $t
     return $translations;
 }
 
-function translate(Client $client, string $phrase, string $source, string $target, int $maxRetries = 3): string
+function translate(Client $client, string $phrase, string $source, string $target, int $maxRetries = 1): string
 {
+    if ($source === $target) {
+        return $phrase;
+    }
+
     for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
         try {
             $translation = $client->translate(new TranslateRequestDTO(

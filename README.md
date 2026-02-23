@@ -1,22 +1,17 @@
 # Sandbox NMT
 
-A PHP sandbox for experimenting with Neural Machine Translation (NMT) using [LibreTranslate](https://libretranslate.com/) — a self-hosted machine translation engine.
+A PHP sandbox for experimenting with Neural Machine Translation (NMT) using [LibreTranslate](https://libretranslate.com/) and [NLLB-200](https://ai.meta.com/research/no-language-left-behind/) — self-hosted machine translation engines.
 Dockerized environment, ready to go right after `make up`.
 
 ## Architecture
 
-Two services defined in `compose.yaml`:
+Three services defined in `compose.yaml`:
 
 - **libretranslate** — LibreTranslate server (port 5000) with a persistent volume for language models, memory limited to 2GB
+- **nllb-translator** — Python FastAPI server (port 8081) wrapping Meta's NLLB-200 model (`facebook/nllb-200-distilled-600M`), memory limited to 3GB
 - **php** — PHP 8.4/8.5 CLI (Alpine) with Composer 2, mounting the project directory as `/app`
 
-The PHP container communicates with LibreTranslate at `http://libretranslate:5000` via the `devapp` Docker network.
-
-## Supported Languages
-
-en, pl, cs, de, es, fr, hu, nl, ro, sk, sv, ru, uk, it
-
-The list can be changed via the `LT_LOAD_ONLY` variable in `compose.yaml`.
+The PHP container communicates with LibreTranslate at `http://libretranslate:5000` and NLLB at `http://nllb-translator:8000` via the `devapp` Docker network.
 
 ## Requirements
 
@@ -30,17 +25,9 @@ make up          # Start services (detached)
 make init        # Install Composer dependencies
 ```
 
-On the first run, LibreTranslate will download language models — this may take a few minutes.
+On the first run, LibreTranslate and NLLB will download language models — this may take a few minutes.
 
-### Running a Translation
-
-```bash
-docker compose exec php php src/translate.php
-```
-
-The script (`src/translate.php`) translates a given phrase from the source language into all configured target languages and returns the result as JSON.
-
-### API Examples
+### LibreTranslate API
 
 List supported languages:
 
@@ -62,9 +49,22 @@ Content-Type: application/json
 }
 ```
 
-See `.http/libre_translate.http`.
-
 Full API documentation: https://docs.libretranslate.com/
+
+### NLLB API
+
+Translate text (uses [FLORES-200 language codes](https://github.com/facebookresearch/flores/blob/main/flores200/README.md#languages-in-flores-200)):
+
+```http
+POST http://localhost:8081/translate
+Content-Type: application/json
+
+{
+  "text": "chłodziarka",
+  "source": "pol_Latn",
+  "target": "eng_Latn"
+}
+```
 
 ## Make Commands
 
@@ -82,4 +82,6 @@ make help    # Show available commands
 - PHP 8.4/8.5 (extensions: zip, pcntl, intl, bcmath)
 - [malvik-lab/libre-translate-api-client](https://github.com/AntonioDiPassio/libre-translate-api-client) — PHP client for the LibreTranslate API
 - [openai-php/client](https://github.com/openai-php/client) — OpenAI PHP client (for future Ollama integration)
+- [NLLB-200](https://ai.meta.com/research/no-language-left-behind/) (`facebook/nllb-200-distilled-600M`) — Meta's multilingual translation model supporting 200 languages
+- FastAPI + Uvicorn — Python server exposing NLLB as a REST API
 - XDebug pre-configured for PHPStorm (`host.docker.internal:9003`, IDE key `PHPSTORM`)
