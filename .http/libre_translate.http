@@ -11,6 +11,5 @@ Content-Type: application/json
 {
   "q": "chłodziarka",
   "source": "pl",
-  "target": "en",
-  "alternatives": 2
+  "target": "en"
 }

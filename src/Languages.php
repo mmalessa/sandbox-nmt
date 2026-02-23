@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
-    const LANGUAGES = [
+namespace App;
+
+class Languages
+{
+    public const LIST = [
         'en' => 'en_EN',
         'pl' => 'pl_PL',
         'cs' => 'cs_CZ',
@@ -18,5 +22,6 @@ declare(strict_types=1);
         'sv' => 'sv_SE',
         'ru' => 'ru_RU',
         'uk' => 'uk_UA',
-        'it' => 'it_IT'
+        'it' => 'it_IT',
     ];
+}

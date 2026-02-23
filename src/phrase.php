@@ -1,5 +1,0 @@
-<?php
-
-declare(strict_types=1);
-
-$phrase = 'klimatyzator naścienny';
