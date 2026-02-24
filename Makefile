@@ -27,8 +27,8 @@ sh: ## Enter application shell
 	@$(DC) exec -it php bash
 
 # https://ollama.com/library
-.PHONY: get-models ## Download Ollama models
-get-models:
+.PHONY: fetch-models ## Download Ollama models
+fetch-models:
 	@#$(DC) exec -it ollama ollama pull qwen2.5:3b
 	@$(DC) exec -it ollama ollama pull qwen3:1.7b
 	@#$(DC) exec -it ollama ollama pull mistral:7b-instruct
